@@ -1,4 +1,10 @@
 # Node.js Weather Logger - Beginner Tutorial
+result 1
+<img width="832" height="360" alt="output 1" src="https://github.com/user-attachments/assets/800c2240-56cf-4770-ac11-f1db84b4afd5" />
+result 2
+<img width="492" height="333" alt="output 2" src="https://github.com/user-attachments/assets/259985db-4372-4531-ad98-ea7f9ade6e7a" />
+
+
 
 A beginner-friendly project demonstrating Node.js core concepts: Event Loop, Non-blocking I/O, Core Modules, and NPM.
 
