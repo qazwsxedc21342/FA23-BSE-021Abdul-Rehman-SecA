@@ -105,7 +105,19 @@ crud_examples/
 
 Contributions welcome hain! Pull request submit kar sakte hain.
 
+
+
+# Terminal 1
+cd mongodb_crud && npm start
+
+# Terminal 2
+cd mysql_crud && npm start
+
+# Terminal 3
+cd sqlite_crud && npm start
+
 ## License
 
 MIT License
+
 
