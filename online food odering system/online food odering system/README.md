@@ -273,4 +273,12 @@ npm run seed:all
 - **View Details**: Click on order ID
 
 ---
+OUTPUT:
+<img width="1918" height="907" alt="1" src="https://github.com/user-attachments/assets/a1d89db9-c9fc-4495-9db4-c44cacaf8936" />
+<img width="1918" height="902" alt="2" src="https://github.com/user-attachments/assets/43eff019-b458-4bb4-b731-7fa755eff185" />
+<img width="1918" height="903" alt="3" src="https://github.com/user-attachments/assets/2b3435c8-a095-49e7-809e-41b8e391701e" />
+<img width="1918" height="905" alt="4" src="https://github.com/user-attachments/assets/e438ffec-5079-45c8-b78f-ced71b3ad93a" />
+<img width="1918" height="897" alt="5" src="https://github.com/user-attachments/assets/9a1a2209-cece-48b0-ba41-08bb149b12c2" />
+<img width="1918" height="897" alt="6" src="https://github.com/user-attachments/assets/52ed679e-2aac-4862-8da2-0e92eed1b291" />
+<img width="1918" height="902" alt="7" src="https://github.com/user-attachments/assets/adfe01d9-02ef-491e-89aa-adb18ac2ca55" />
 
