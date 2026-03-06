@@ -155,3 +155,7 @@ Put your screenshots in `docs/images/` and they will render here.
 
 - `middleware/auth.js` is a demo auth guard; it validates a fixed token (`demo-token`) and attaches `req.user`.
 - `middleware/errorHandler.js` should remain the last middleware registered in `app.js`.
+
+- OUTPUT:
+-<img width="675" height="576" alt="1" src="https://github.com/user-attachments/assets/2aa9878e-3481-481b-80a3-b659319dcaf6" />
+ 
