@@ -2,8 +2,12 @@
 ## Complete Project Guide — Based on Lecture Notes
 
 ---
+![WhatsApp Image 2026-03-06 at 8 13 28 AM](https://github.com/user-attachments/assets/1b735c06-9c99-4594-8965-02463ee04f5a)
+![WhatsApp Image 2026-03-06 at 8 13 27 AM](https://github.com/user-attachments/assets/2fa00567-9e13-4ad0-b928-51e0c2627479)
 
-## 📁 Project Structure
+![WhatsApp Image 2026-03-06 at 8 13 27 AM (1)](https://github.com/user-attachments/assets/bf98d7fe-10df-47e1-80d1-1951ebc290df)
+
+📁 Project Structure
 
 ```
 university-api/
