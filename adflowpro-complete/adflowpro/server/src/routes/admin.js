@@ -5,6 +5,7 @@ import { validate, verifyPaymentSchema, publishAdSchema } from '../validators/sc
 import { logAudit, logStatusChange } from '../services/auditService.js';
 import { sendNotification } from '../services/notificationService.js';
 import { updateRankScore } from '../services/rankService.js';
+import { getIO } from '../utils/socket.js';
 
 import { isDemoMode } from '../utils/runtime.js';
 
@@ -102,6 +103,8 @@ router.patch('/ads/:id/publish', validate(publishAdSchema), async (req, res, nex
     if (newStatus === 'published') await updateRankScore(ad.id);
 
     await sendNotification({ user_id: ad.user_id, title: newStatus === 'published' ? 'Your ad is live!' : newStatus === 'scheduled' ? 'Ad scheduled' : 'Ad rejected', message: newStatus === 'published' ? `"${ad.title}" is now live on AdFlow Pro.` : `"${ad.title}" has been ${newStatus}.`, type: newStatus === 'published' ? 'success' : newStatus === 'scheduled' ? 'info' : 'danger' });
+
+    getIO().emit('ad_updated', { id: ad.id, status: newStatus });
 
     res.json({ success: true, message: `Ad ${action}d`, data: { status: newStatus, publish_at: publishAt, expire_at: expireAt } });
   } catch (err) { next(err); }

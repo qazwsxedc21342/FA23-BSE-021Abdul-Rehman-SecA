@@ -4,6 +4,7 @@ import { authenticate, authorize } from '../middlewares/auth.js';
 import { validate, reviewSchema } from '../validators/schemas.js';
 import { logAudit, logStatusChange } from '../services/auditService.js';
 import { sendNotification } from '../services/notificationService.js';
+import { getIO } from '../utils/socket.js';
 
 import { isDemoMode } from '../utils/runtime.js';
 
@@ -72,6 +73,9 @@ router.patch('/ads/:id/review', validate(reviewSchema), async (req, res, next) =
     await logStatusChange({ ad_id: ad.id, previous_status: ad.status, new_status: newStatus, changed_by: req.user.id, note });
     await logAudit({ actor_id: req.user.id, action_type: `AD_${action.toUpperCase()}`, target_type: 'ads', target_id: ad.id, old_value: { status: ad.status }, new_value: { status: newStatus }, ip_address: req.ip });
     await sendNotification({ user_id: ad.user_id, title: notifTitle, message: notifMsg, type: notifType, link: `/client/ads/${ad.id}` });
+
+    // ─── Trigger Real-Time Feed Update
+    getIO().emit('ad_updated', { id: ad.id, status: newStatus });
 
     res.json({ success: true, message: `Ad ${action}d successfully` });
   } catch (err) { next(err); }

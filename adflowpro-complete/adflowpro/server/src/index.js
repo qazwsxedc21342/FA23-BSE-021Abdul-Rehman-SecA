@@ -1,11 +1,17 @@
 import 'dotenv/config';
 import express from 'express';
+import http from 'http';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 
 import { getDemoModeInfo } from './utils/runtime.js';
+import logger from './utils/logger.js';
+import { ApiError } from './utils/ApiError.js';
+import { errorConverter, errorHandler } from './middlewares/error.js';
+import { setupSwagger } from './utils/swagger.js';
+import { initSocket } from './utils/socket.js';
 
 // Routes
 import authRoutes        from './routes/auth.js';
@@ -25,7 +31,7 @@ import cityRoutes        from './routes/cities.js';
 const demoInfo = getDemoModeInfo();
 if (demoInfo.enabled) {
   const reason = demoInfo.forced ? 'DEMO_MODE=true' : (demoInfo.supabaseIssues.join(', ') || 'unknown');
-  console.warn(`⚠️  Demo mode enabled (${reason}). Cron jobs are disabled.`);
+  logger.warn(`⚠️  Demo mode enabled (${reason}). Cron jobs are disabled.`);
 } else {
   await import('./cron/scheduler.js');
 }
@@ -40,7 +46,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json({ limit: '1mb' }));
-app.use(morgan('dev'));
+app.use(morgan('dev', { stream: { write: (message) => logger.info(message.trim()) } }));
 
 // ─── Global Rate Limiter ────────────────────────────────────
 const limiter = rateLimit({
@@ -66,32 +72,26 @@ app.use('/api/questions',   questionRoutes);
 app.use('/api/health',      healthRoutes);
 app.use('/api/cron',        cronRoutes);
 
+// ─── API Documentation ────────────────────────────────────────
+setupSwagger(app);
+
 // ─── Root ping ──────────────────────────────────────────────
 app.get('/', (_req, res) => res.json({ message: 'AdFlow Pro API running ✓', version: '1.0.0' }));
 
 // ─── 404 Handler ────────────────────────────────────────────
-app.use((_req, res) => res.status(404).json({ success: false, message: 'Route not found' }));
+app.use((_req, _res, next) => next(new ApiError(404, 'Route not found')));
 
 // ─── Global Error Handler ───────────────────────────────────
-app.use((err, _req, res, _next) => {
-  if (err?.type === 'entity.parse.failed') {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid JSON body. Make sure you send valid JSON with Content-Type: application/json.',
-    });
-  }
+app.use(errorConverter);
+app.use(errorHandler);
 
-  console.error('[ERROR]', err.message);
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
-  });
-});
+const server = http.createServer(app);
+initSocket(server);
 
-app.listen(PORT, () => {
-  console.log(`✅ AdFlow Pro server running on port ${PORT}`);
-  console.log(`   ENV: ${process.env.NODE_ENV}`);
+server.listen(PORT, () => {
+  logger.info(`✅ AdFlow Pro server running on port ${PORT}`);
+  logger.info(`   ENV: ${process.env.NODE_ENV}`);
+  logger.info(`   Real-Time WebSockets Enabled ⚡`);
 });
 
 export default app;

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { publicAPI } from '../utils/api';
 import { AdCard, Spinner, EmptyState, PageHeader } from '../components/UI';
+import { useSocket } from '../features/socket/SocketContext';
 
 export default function ExplorePage() {
   const [ads,        setAds]        = useState([]);
@@ -41,6 +42,23 @@ export default function ExplorePage() {
     const t = setTimeout(() => fetchAds(1), 300);
     return () => clearTimeout(t);
   }, [fetchAds]);
+
+  const { socket } = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+    
+    const handleAdUpdate = () => {
+      console.log('⚡ Real-time ad update received!');
+      fetchAds(pagination.page);
+    };
+
+    socket.on('ad_updated', handleAdUpdate);
+    
+    return () => {
+      socket.off('ad_updated', handleAdUpdate);
+    };
+  }, [socket, fetchAds, pagination.page]);
 
   return (
     <div style={{ background: '#0f172a', minHeight: '100vh' }}>
