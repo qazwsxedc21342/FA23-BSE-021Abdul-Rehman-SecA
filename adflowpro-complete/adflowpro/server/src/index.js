@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import express from 'express';
-import http from 'http';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -8,10 +7,7 @@ import rateLimit from 'express-rate-limit';
 
 import { getDemoModeInfo } from './utils/runtime.js';
 import logger from './utils/logger.js';
-import { ApiError } from './utils/ApiError.js';
-import { errorConverter, errorHandler } from './middlewares/error.js';
 import { setupSwagger } from './utils/swagger.js';
-import { initSocket } from './utils/socket.js';
 
 // Routes
 import authRoutes        from './routes/auth.js';
@@ -27,17 +23,23 @@ import cronRoutes        from './routes/cron.js';
 import categoryRoutes    from './routes/categories.js';
 import cityRoutes        from './routes/cities.js';
 
+import http from 'http';
+import { initSocket } from './utils/socket.js';
+
 // Cron scheduler
 const demoInfo = getDemoModeInfo();
 if (demoInfo.enabled) {
   const reason = demoInfo.forced ? 'DEMO_MODE=true' : (demoInfo.supabaseIssues.join(', ') || 'unknown');
-  logger.warn(`⚠️  Demo mode enabled (${reason}). Cron jobs are disabled.`);
+  console.warn(`⚠️  Demo mode enabled (${reason}). Cron jobs are disabled.`);
 } else {
   await import('./cron/scheduler.js');
 }
 
 const app  = express();
-const PORT = process.env.PORT || 5000;
+const server = http.createServer(app);
+const io = initSocket(server);
+
+const PORT = 5001;
 
 // ─── Security & Parsing ─────────────────────────────────────
 app.use(helmet());
@@ -82,16 +84,26 @@ app.get('/', (_req, res) => res.json({ message: 'AdFlow Pro API running ✓', ve
 app.use((_req, _res, next) => next(new ApiError(404, 'Route not found')));
 
 // ─── Global Error Handler ───────────────────────────────────
-app.use(errorConverter);
-app.use(errorHandler);
+app.use((err, _req, res, _next) => {
+  if (err?.type === 'entity.parse.failed') {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid JSON body. Make sure you send valid JSON with Content-Type: application/json.',
+    });
+  }
 
-const server = http.createServer(app);
-initSocket(server);
+  console.error('[ERROR]', err.message);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal server error',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+  });
+});
 
 server.listen(PORT, () => {
-  logger.info(`✅ AdFlow Pro server running on port ${PORT}`);
-  logger.info(`   ENV: ${process.env.NODE_ENV}`);
-  logger.info(`   Real-Time WebSockets Enabled ⚡`);
+  console.log(`✅ AdFlow Pro server running on port ${PORT}`);
+  console.log(`   ENV: ${process.env.NODE_ENV}`);
+  console.log(`   Real-Time WebSockets Enabled ⚡`);
 });
 
 export default app;

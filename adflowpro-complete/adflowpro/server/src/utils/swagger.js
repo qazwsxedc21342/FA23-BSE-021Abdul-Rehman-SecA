@@ -1,4 +1,4 @@
-import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 
 const options = {
@@ -7,16 +7,12 @@ const options = {
     info: {
       title: 'AdFlow Pro API',
       version: '1.0.0',
-      description: 'API documentation for AdFlow Pro Backend',
+      description: 'API documentation for the AdFlow Pro sponsored listing marketplace.',
     },
     servers: [
       {
-        url: 'http://localhost:5000/api',
-        description: 'Local Development Server',
-      },
-      {
-        url: 'https://api.yourdomain.com/api',
-        description: 'Production Server',
+        url: process.env.API_URL || 'http://localhost:5000',
+        description: 'Development server',
       },
     ],
     components: {
@@ -34,11 +30,12 @@ const options = {
       },
     ],
   },
-  apis: ['./src/routes/*.js'], // Path to the API docs
+  apis: ['./src/routes/*.js', './src/docs/**/*.yml'],
 };
 
-const specs = swaggerJsdoc(options);
+const swaggerSpec = swaggerJSDoc(options);
 
 export const setupSwagger = (app) => {
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  console.log('📚 API documentation available at /api-docs');
 };

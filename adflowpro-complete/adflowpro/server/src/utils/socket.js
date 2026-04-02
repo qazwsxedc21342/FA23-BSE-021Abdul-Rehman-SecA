@@ -1,28 +1,19 @@
 import { Server } from 'socket.io';
-import logger from './logger.js';
 
 let io;
 
-export const initSocket = (server) => {
-  io = new Server(server, {
+export const initSocket = (httpServer) => {
+  io = new Server(httpServer, {
     cors: {
       origin: process.env.CLIENT_URL || 'http://localhost:3000',
-      methods: ['GET', 'POST', 'PUT', 'DELETE'],
-      credentials: true,
+      methods: ['GET', 'POST'],
     },
   });
 
   io.on('connection', (socket) => {
-    logger.info(`🔌 Socket connected: ${socket.id}`);
-
-    // If we want users to join specific rooms (like their own user ID) for private notifications
-    socket.on('join_user_room', (userId) => {
-      socket.join(`user_${userId}`);
-      logger.info(`User ${userId} joined room user_${userId}`);
-    });
-
+    console.log('🔌 A client connected:', socket.id);
     socket.on('disconnect', () => {
-      logger.info(`🔌 Socket disconnected: ${socket.id}`);
+      console.log('🔌 A client disconnected:', socket.id);
     });
   });
 
@@ -31,7 +22,7 @@ export const initSocket = (server) => {
 
 export const getIO = () => {
   if (!io) {
-    throw new Error('Socket.io is not initialized!');
+    throw new Error('Socket.IO not initialized!');
   }
   return io;
 };
