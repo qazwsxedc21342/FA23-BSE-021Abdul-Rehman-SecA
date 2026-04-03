@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "AdFlow Pro - Sponsored Listing Marketplace",
   "private": true,
-  "workspaces": ["server", "client"],
   "scripts": {
     "dev:server": "cd server && npm run dev",
     "dev:client": "cd client && npm run dev",
