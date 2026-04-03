@@ -152,6 +152,22 @@ router.get('/users', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// PATCH /api/admin/users/:id/verify
+router.patch('/users/:id/verify', async (req, res, next) => {
+  try {
+    const { data: user } = await supabase.from('users').select('id, role').eq('id', req.params.id).single();
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    if (user.role !== 'client') return res.status(400).json({ success: false, message: 'Only clients can be verified' });
+
+    await supabase.from('seller_profiles').update({ is_verified: true }).eq('user_id', req.params.id);
+    await logAudit({ actor_id: req.user.id, action_type: 'USER_VERIFY', target_type: 'users', target_id: req.params.id, ip_address: req.ip });
+    
+    await sendNotification({ user_id: req.params.id, title: 'Account Verified!', message: 'Your account has been verified by an admin. You can now log in.', type: 'success' });
+
+    res.json({ success: true, message: 'User verified successfully' });
+  } catch(err) { next(err); }
+});
+
 // PATCH /api/admin/users/:id/status
 router.patch('/users/:id/status', async (req, res, next) => {
   try {

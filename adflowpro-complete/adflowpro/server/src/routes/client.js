@@ -62,6 +62,10 @@ router.get('/dashboard', async (req, res, next) => {
 // POST /api/client/ads - Create ad draft
 router.post('/ads', validate(createAdSchema), async (req, res, next) => {
   try {
+    const { data: profile } = await supabase.from('seller_profiles').select('is_verified').eq('user_id', req.user.id).single();
+    if (!profile?.is_verified) {
+      return res.status(403).json({ success: false, message: 'You must be verified by a moderator or admin to create ads.' });
+    }
     const { title, description, price, category_id, city_id, media_urls = [] } = req.body;
 
     const slug = slugify(title, { lower: true, strict: true }) + '-' + uuidv4().slice(0, 8);
@@ -123,6 +127,10 @@ router.patch('/ads/:id', validate(updateAdSchema), async (req, res, next) => {
 // POST /api/client/ads/:id/submit - Submit draft for review
 router.post('/ads/:id/submit', async (req, res, next) => {
   try {
+    const { data: profile } = await supabase.from('seller_profiles').select('is_verified').eq('user_id', req.user.id).single();
+    if (!profile?.is_verified) {
+      return res.status(403).json({ success: false, message: 'You must be verified by a moderator or admin to submit ads.' });
+    }
     const { data: ad } = await supabase.from('ads').select('*').eq('id', req.params.id).eq('user_id', req.user.id).single();
     if (!ad) return res.status(404).json({ success: false, message: 'Ad not found' });
     if (ad.status !== 'draft') return res.status(400).json({ success: false, message: 'Only drafts can be submitted' });

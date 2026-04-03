@@ -2,7 +2,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5001/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api',
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
 });
@@ -59,8 +59,10 @@ export const clientAPI = {
 
 // ─── Moderator ───────────────────────────────────────────────
 export const moderatorAPI = {
-  getQueue:     ()          => api.get('/moderator/review-queue'),
-  reviewAd:     (id, data)  => api.patch(`/moderator/ads/${id}/review`, data),
+  getQueue:        ()          => api.get('/moderator/review-queue'),
+  reviewAd:        (id, data)  => api.patch(`/moderator/ads/${id}/review`, data),
+  getPendingUsers: ()          => api.get('/moderator/pending-users'),
+  verifyUser:      (id)        => api.patch(`/moderator/users/${id}/verify`),
 };
 
 // ─── Admin ───────────────────────────────────────────────────
@@ -72,6 +74,7 @@ export const adminAPI = {
   boostAd:          (id, boost) => api.patch(`/admin/ads/${id}/boost`, { boost }),
   getUsers:         ()          => api.get('/admin/users'),
   updateUserStatus: (id, status)=> api.patch(`/admin/users/${id}/status`, { status }),
+  verifyUser:       (id)        => api.patch(`/admin/users/${id}/verify`),
   getAuditLogs:     ()          => api.get('/admin/audit-logs'),
 };
 

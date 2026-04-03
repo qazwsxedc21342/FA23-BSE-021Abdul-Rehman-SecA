@@ -95,7 +95,7 @@ export const login = async (req, res, next) => {
 
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, name, email, role, status, password_hash')
+      .select('id, name, email, role, status, password_hash, seller_profiles(is_verified)')
       .eq('email', email)
       .single();
 
@@ -105,6 +105,17 @@ export const login = async (req, res, next) => {
 
     if (user.status !== 'active') {
       return res.status(403).json({ success: false, message: 'Account is suspended or banned' });
+    }
+
+    // Block unverified clients
+    if (user.role === 'client') {
+      const isVerified = Array.isArray(user.seller_profiles) 
+        ? user.seller_profiles[0]?.is_verified 
+        : user.seller_profiles?.is_verified;
+
+      if (!isVerified) {
+        return res.status(403).json({ success: false, message: 'Your account registration is pending verification by an admin or moderator.' });
+      }
     }
 
     const valid = await bcrypt.compare(password, user.password_hash);

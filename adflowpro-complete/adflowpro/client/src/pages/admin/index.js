@@ -71,6 +71,19 @@ export default function AdminDashboard() {
     } catch (err) { toast.error('Failed to update user'); }
   };
 
+  const handleVerifyUser = async (id) => {
+    try {
+      await adminAPI.verifyUser(id);
+      setUsers(prev => prev.map(u => {
+        if (u.id !== id) return u;
+        const profs = Array.isArray(u.seller_profiles) ? u.seller_profiles : [u.seller_profiles || {}];
+        if (profs[0]) profs[0].is_verified = true;
+        return { ...u, seller_profiles: profs };
+      }));
+      toast.success('User verified');
+    } catch (err) { toast.error('Verification failed'); }
+  };
+
   const handleFeature = async (id) => {
     try {
       await adminAPI.featureAd(id);
@@ -176,6 +189,16 @@ export default function AdminDashboard() {
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                   <span style={{ background: (ROLE_COLORS[u.role] || '#6b7280') + '22', color: ROLE_COLORS[u.role] || '#6b7280', border: `1px solid ${ROLE_COLORS[u.role] || '#6b7280'}44`, padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600 }}>{u.role}</span>
                   <span style={{ background: u.status === 'active' ? '#22c55e22' : '#ef444422', color: u.status === 'active' ? '#22c55e' : '#ef4444', border: `1px solid ${u.status === 'active' ? '#22c55e44' : '#ef444444'}`, padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600 }}>{u.status}</span>
+                  
+                  {u.role === 'client' && (() => {
+                    const isVerified = Array.isArray(u.seller_profiles) ? u.seller_profiles[0]?.is_verified : u.seller_profiles?.is_verified;
+                    return !isVerified ? (
+                      <button style={{ background: '#f59e0b', color: '#1a1a2e', border: 'none', borderRadius: 7, padding: '5px 12px', fontSize: 12, cursor: 'pointer', fontWeight: 600 }}
+                        onClick={() => handleVerifyUser(u.id)}>Verify Registration</button>
+                    ) : (
+                      <span style={{ color: '#22c55e', fontSize: 12, fontWeight: 600 }}>✓ Verified</span>
+                    );
+                  })()}
                   {u.status === 'active' ? (
                     <button style={{ background: '#334155', color: '#94a3b8', border: 'none', borderRadius: 7, padding: '5px 12px', fontSize: 12, cursor: 'pointer' }}
                       onClick={() => handleUserStatus(u.id, 'suspended')}>Suspend</button>

@@ -10,12 +10,7 @@ export default function LoginPage() {
   const [form,    setForm]    = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
 
-  const DEMO = [
-    { label: 'Client',     email: 'client@demo.com' },
-    { label: 'Moderator',  email: 'mod@demo.com' },
-    { label: 'Admin',      email: 'admin@demo.com' },
-    { label: 'Super Admin',email: 'super@demo.com' },
-  ];
+
 
   const ROLE_REDIRECT = { client: '/client/dashboard', moderator: '/moderator', admin: '/admin', superadmin: '/admin' };
 
@@ -65,18 +60,7 @@ export default function LoginPage() {
           <Link href="/register" style={{ color: '#e94560', fontWeight: 600 }}>Register free</Link>
         </div>
 
-        {/* Demo accounts */}
-        <div style={{ background: '#0f172a', borderRadius: 10, padding: 14, marginTop: 20 }}>
-          <div style={{ fontSize: 11, color: '#475569', fontWeight: 600, marginBottom: 8, letterSpacing: 1 }}>DEMO ACCOUNTS (password: demo123)</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-            {DEMO.map(d => (
-              <button key={d.email} onClick={() => setForm({ email: d.email, password: 'demo123' })}
-                style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 7, padding: '6px 10px', fontSize: 12, color: '#60a5fa', cursor: 'pointer', textAlign: 'left' }}>
-                → {d.label}
-              </button>
-            ))}
-          </div>
-        </div>
+
       </div>
     </div>
   );

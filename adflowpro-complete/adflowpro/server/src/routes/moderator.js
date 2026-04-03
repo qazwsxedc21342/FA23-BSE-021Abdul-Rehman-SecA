@@ -11,6 +11,41 @@ import { isDemoMode } from '../utils/runtime.js';
 const router = Router();
 router.use(authenticate, authorize('moderator', 'admin', 'superadmin'));
 
+// GET /api/moderator/pending-users
+router.get('/pending-users', async (req, res, next) => {
+  try {
+    if (isDemoMode()) {
+      return res.json({ success: true, data: [], count: 0 });
+    }
+
+    const { data: users, error } = await supabase
+      .from('users')
+      .select('id, name, email, created_at, seller_profiles!inner(is_verified, display_name)')
+      .eq('role', 'client')
+      .eq('seller_profiles.is_verified', false)
+      .order('created_at', { ascending: false });
+      
+    if (error) throw error;
+    res.json({ success: true, data: users, count: users.length });
+  } catch (err) { next(err); }
+});
+
+// PATCH /api/moderator/users/:id/verify
+router.patch('/users/:id/verify', async (req, res, next) => {
+  try {
+    const { data: user } = await supabase.from('users').select('id, role').eq('id', req.params.id).single();
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    if (user.role !== 'client') return res.status(400).json({ success: false, message: 'Only clients can be verified' });
+
+    await supabase.from('seller_profiles').update({ is_verified: true }).eq('user_id', req.params.id);
+    await logAudit({ actor_id: req.user.id, action_type: 'USER_VERIFY', target_type: 'users', target_id: req.params.id, ip_address: req.ip });
+    
+    await sendNotification({ user_id: req.params.id, title: 'Account Verified!', message: 'Your account has been verified. You can now log in and post ads.', type: 'success' });
+
+    res.json({ success: true, message: 'User verified successfully' });
+  } catch(err) { next(err); }
+});
+
 // GET /api/moderator/review-queue
 router.get('/review-queue', async (req, res, next) => {
   try {
