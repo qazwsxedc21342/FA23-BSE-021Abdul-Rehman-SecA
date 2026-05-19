@@ -1,7 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { publicAPI } from '../utils/api';
 import { AdCard, Spinner, EmptyState, PageHeader } from '../components/UI';
 import { useSocket } from '../features/socket/SocketContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ExplorePage() {
   const [ads, setAds] = useState([]);
@@ -66,40 +65,48 @@ export default function ExplorePage() {
         <PageHeader title="Explore Listings" sub={`${pagination.total} active listings`} />
 
         {/* ── Filters ─────────────────────────────────────────── */}
-        <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 12, padding: 16, marginBottom: 24, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+        <motion.div 
+          className="glass"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{ padding: 24, borderRadius: 20, marginBottom: 32, display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-end', border: '1px solid rgba(255,255,255,0.05)' }}
+        >
           <div style={{ flex: 2, minWidth: 200 }}>
-            <label className="label">Search</label>
-            <input className="input" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search listings..." />
+            <label className="label">Search Listings</label>
+            <input className="input" value={search} onChange={e => setSearch(e.target.value)} placeholder="e.g. iPhone 15, Honda Civic..." style={{ background: 'rgba(0,0,0,0.2)' }} />
           </div>
           <div style={{ flex: 1, minWidth: 150 }}>
             <label className="label">Category</label>
-            <select className="input" value={category} onChange={e => setCategory(e.target.value)}>
+            <select className="input" value={category} onChange={e => setCategory(e.target.value)} style={{ background: 'rgba(0,0,0,0.2)' }}>
               <option value="">All Categories</option>
               {categories.map(c => <option key={c.id} value={c.slug}>{c.name}</option>)}
             </select>
           </div>
           <div style={{ flex: 1, minWidth: 130 }}>
             <label className="label">City</label>
-            <select className="input" value={city} onChange={e => setCity(e.target.value)}>
+            <select className="input" value={city} onChange={e => setCity(e.target.value)} style={{ background: 'rgba(0,0,0,0.2)' }}>
               <option value="">All Cities</option>
               {cities.map(c => <option key={c.id} value={c.slug}>{c.name}</option>)}
             </select>
           </div>
           <div style={{ flex: 1, minWidth: 130 }}>
-            <label className="label">Sort by</label>
-            <select className="input" value={sort} onChange={e => setSort(e.target.value)}>
-              <option value="rank">Rank Score</option>
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
+            <label className="label">Sort</label>
+            <select className="input" value={sort} onChange={e => setSort(e.target.value)} style={{ background: 'rgba(0,0,0,0.2)' }}>
+              <option value="rank">Best Match</option>
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
             </select>
           </div>
           {(search || category || city) && (
-            <button className="btn-secondary" style={{ padding: '9px 14px', fontSize: 13 }}
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="btn-secondary" style={{ padding: '10px 20px', fontSize: 13, borderRadius: 10 }}
               onClick={() => { setSearch(''); setCategory(''); setCity(''); setSort('rank'); }}>
-              Clear
-            </button>
+              Reset Filters
+            </motion.button>
           )}
-        </div>
+        </motion.div>
 
         {/* ── Results ─────────────────────────────────────────── */}
         {loading ? (
@@ -111,8 +118,18 @@ export default function ExplorePage() {
             <div style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>
               Showing {ads.length} of {pagination.total} listings · sorted by {sort}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16, marginBottom: 32 }}>
-              {ads.map(ad => <AdCard key={ad.id} ad={ad} />)}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24, marginBottom: 48 }}>
+              {ads.map((ad, idx) => (
+                <motion.div 
+                  key={ad.id}
+                  initial={{ opacity: 0, scale: 0.9, rotateY: -5 }}
+                  whileInView={{ opacity: 1, scale: 1, rotateY: 0 }}
+                  transition={{ delay: (idx % 4) * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <AdCard ad={ad} />
+                </motion.div>
+              ))}
             </div>
 
             {/* Pagination */}

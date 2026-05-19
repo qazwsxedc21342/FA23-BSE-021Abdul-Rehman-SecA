@@ -10,7 +10,7 @@ import { getIO } from '../utils/socket.js';
 import { isDemoMode } from '../utils/runtime.js';
 
 const router = Router();
-router.use(authenticate, authorize('admin', 'superadmin'));
+router.use(authenticate, authorize('moderator', 'admin', 'superadmin'));
 
 // GET /api/admin/payment-queue
 router.get('/payment-queue', async (req, res, next) => {

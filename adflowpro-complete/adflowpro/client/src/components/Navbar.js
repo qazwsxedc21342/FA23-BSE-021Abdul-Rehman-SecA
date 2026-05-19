@@ -22,7 +22,7 @@ export default function Navbar() {
 
   const ROLE_DASH = {
     client:     '/client/dashboard',
-    moderator:  '/moderator',
+    moderator:  '/admin',
     admin:      '/admin',
     superadmin: '/admin',
   };

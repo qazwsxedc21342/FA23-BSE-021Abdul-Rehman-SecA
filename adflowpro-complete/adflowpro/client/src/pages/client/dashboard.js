@@ -4,6 +4,7 @@ import { clientAPI, publicAPI } from '../../utils/api';
 import { StatusBadge, PackageBadge, StatCard, Spinner, EmptyState, PageHeader } from '../../components/UI';
 import { useAuth } from '../../features/auth/AuthContext';
 import toast from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ClientDashboard() {
   const { user, loading: authLoading } = useAuth();
@@ -23,8 +24,15 @@ export default function ClientDashboard() {
   useEffect(() => {
     if (!authLoading && !user) { router.push('/login'); return; }
     if (!authLoading && user && user.role !== 'client') { router.push('/'); return; }
-    if (user) loadData();
-  }, [user, authLoading]);
+    if (user) {
+      loadData().then(() => {
+        // Handle deep-linking from query params
+        const { tab: qTab, pkg: qPkg } = router.query;
+        if (qTab) setTab(qTab);
+        if (qPkg) setPayForm(prev => ({ ...prev, package_id: qPkg }));
+      });
+    }
+  }, [user, authLoading, router.isReady, router.query]);
 
   const loadData = async () => {
     try {
@@ -123,43 +131,70 @@ export default function ClientDashboard() {
           ))}
         </div>
 
-        {/* ── My Ads Tab ─────────────────────────────────────── */}
-        {tab === 'ads' && (
+        {/* ── Content ────────────────────────────────────────── */}
+        <div style={{ marginTop: 32 }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={tab}
+              initial={{ opacity: 0, x: 20, rotateY: -5 }}
+              animate={{ opacity: 1, x: 0, rotateY: 0 }}
+              exit={{ opacity: 0, x: -20, rotateY: 5 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {/* ── My Ads Tab ─────────────────────────────────────── */}
+              {tab === 'ads' && (
           <div>
             {ads.length === 0 ? (
               <EmptyState icon="📋" message="No ads yet. Create your first listing!" />
             ) : ads.map(ad => (
-              <div key={ad.id} style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 12, padding: 16, marginBottom: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 6, flexWrap: 'wrap' }}>
-                      <span style={{ fontWeight: 700, color: '#f1f5f9', fontSize: 15 }}>{ad.title}</span>
+              <div key={ad.id} className="glass" style={{ borderRadius: 14, padding: 18, marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+                <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 10, background: '#0f172a88', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
+                    {ad.status === 'published' ? '✅' : '⏳'}
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 4 }}>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: '#f1f5f9' }}>{ad.title}</div>
                       {ad.packages && <PackageBadge name={ad.packages.name} />}
                     </div>
-                    <div style={{ fontSize: 12, color: '#64748b', display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                    <div style={{ fontSize: 12, color: '#64748b', display: 'flex', gap: 12 }}>
                       <span>{ad.categories?.name}</span>
                       <span>{ad.cities?.name}</span>
-                      {ad.expire_at && <span>Expires: {new Date(ad.expire_at).toLocaleDateString()}</span>}
-                      {ad.rank_score > 0 && <span>Rank: {ad.rank_score}</span>}
+                      <span style={{ color: '#444' }}>|</span>
+                      <span style={{ color: '#e94560', fontWeight: 600 }}>
+                        {ad.status === 'submitted' && 'Processing Review...'}
+                        {ad.status === 'payment_pending' && 'Ready for Payment'}
+                        {ad.status === 'payment_submitted' && 'Verifying Payment...'}
+                        {ad.status === 'published' && 'Live & Active'}
+                      </span>
                     </div>
                   </div>
-                  <StatusBadge status={ad.status} />
                 </div>
-                {ad.status === 'payment_pending' && (
-                  <button className="btn-primary" style={{ marginTop: 12, padding: '6px 14px', fontSize: 12 }}
-                    onClick={() => { setPayForm(f => ({ ...f, ad_id: ad.id })); setTab('payment'); }}>
-                    💳 Submit Payment →
-                  </button>
-                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ textAlign: 'right' }}>
+                    <StatusBadge status={ad.status} />
+                    {ad.status === 'payment_pending' && (
+                      <button className="btn-primary" style={{ marginTop: 8, padding: '5px 12px', fontSize: 11, display: 'block', marginLeft: 'auto' }}
+                        onClick={() => { setPayForm(f => ({ ...f, ad_id: ad.id })); setTab('payment'); }}>
+                        Pay Now →
+                      </button>
+                    )}
+                  </div>
+                  <Link href={`/ads/${ad.slug}`} className="btn-secondary" style={{ padding: '6px 14px', fontSize: 13 }}>Details</Link>
+                </div>
               </div>
+
             ))}
           </div>
         )}
 
         {/* ── Create Ad Tab ──────────────────────────────────── */}
         {tab === 'create' && (
-          <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 14, padding: 28, maxWidth: 680 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: '#f1f5f9', marginBottom: 22 }}>New Listing</h2>
+          <div className="glass" style={{ padding: 40, borderRadius: 24, maxWidth: 800, margin: '0 auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 22 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 700, color: '#f1f5f9', margin: 0 }}>Step 1: Create Listing</h2>
+              <div style={{ background: '#e9456022', color: '#e94560', border: '1px solid #e9456044', borderRadius: 20, padding: '4px 12px', fontSize: 11, fontWeight: 700 }}>DRAFT</div>
+            </div>
             <form onSubmit={handleCreateAd}>
               <div style={{ marginBottom: 16 }}>
                 <label className="label">Ad Title *</label>
@@ -217,10 +252,47 @@ export default function ClientDashboard() {
 
         {/* ── Payment Tab ────────────────────────────────────── */}
         {tab === 'payment' && (
-          <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 14, padding: 28, maxWidth: 580 }}>
+          <div className="glass" style={{ padding: 40, borderRadius: 24, maxWidth: 800, margin: '0 auto' }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, color: '#f1f5f9', marginBottom: 22 }}>Submit Payment Proof</h2>
             {pendingPaymentAds.length === 0 ? (
-              <EmptyState icon="💳" message="No ads currently awaiting payment." />
+              <div style={{ padding: '20px 0' }}>
+                {/* Progress Tracker UI */}
+                <div style={{ background: '#0f172a88', borderRadius: 16, padding: 24, border: '1px solid #334155' }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: '#f1f5f9', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 22 }}>🚀</span> How to Go Live
+                  </h3>
+                  
+                  {[
+                    { s: 1, t: 'Create your listing', d: 'Enter your item details in the "New Listing" tab.', active: true },
+                    { s: 2, t: 'Moderator Review', d: 'Our team verifies your content for safety and quality.' },
+                    { s: 3, t: 'Payment Submission', d: 'Once approved, pay here to boost your ad.' },
+                    { s: 4, t: 'Published!', d: 'Your ad goes live across the platform instantly.' },
+                  ].map((step, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 16, marginBottom: 20, position: 'relative' }}>
+                      {i < 3 && <div style={{ position: 'absolute', left: 13, top: 30, bottom: -10, width: 2, background: '#334155' }} />}
+                      <div style={{ 
+                        width: 28, height: 28, borderRadius: 14, background: step.active ? '#e94560' : '#334155',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#fff', zIndex: 1
+                      }}>{step.s}</div>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: step.active ? '#f1f5f9' : '#64748b' }}>{step.t}</div>
+                        <div style={{ fontSize: 13, color: '#64748b', marginTop: 2 }}>{step.d}</div>
+                      </div>
+                    </div>
+                  ))}
+
+                  <div style={{ marginTop: 12, pt: 12, borderTop: '1px solid #334155', paddingTop: 20 }}>
+                    {router.query.pkg && (
+                      <div style={{ background: '#f5a62315', border: '1px solid #f5a62333', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#f5a623' }}>
+                        🎯 You've selected the <strong>{packages.find(p => p.id === router.query.pkg)?.name || 'Premium'}</strong> package! Let's get your ad submitted first.
+                      </div>
+                    )}
+                    <button className="btn-primary" style={{ width: '100%', padding: '12px 0' }} onClick={() => setTab('create')}>
+                      Start Step 1: Create Ad →
+                    </button>
+                  </div>
+                </div>
+              </div>
             ) : (
               <form onSubmit={handlePayment}>
                 <div style={{ marginBottom: 16 }}>
@@ -261,6 +333,27 @@ export default function ClientDashboard() {
                     <input className="input" value={payForm.sender_name} onChange={e => setPayForm({ ...payForm, sender_name: e.target.value })} placeholder="Account holder name" />
                   </div>
                 </div>
+
+                {/* Instructions Box */}
+                {['JazzCash','EasyPaisa'].includes(payForm.method) && (
+                  <div style={{ background: '#f59e0b15', border: '1px solid #f59e0b44', borderRadius: 12, padding: '16px 18px', marginBottom: 20 }}>
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 8 }}>
+                      <span style={{ fontSize: 20 }}>{payForm.method === 'JazzCash' ? '📱' : '📲'}</span>
+                      <div style={{ fontWeight: 700, color: '#f59e0b', fontSize: 14 }}>{payForm.method} Payment Instructions</div>
+                    </div>
+                    <div style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6 }}>
+                      1. Open your {payForm.method} App.<br/>
+                      2. Transfer <strong style={{ color: '#fff' }}>PKR {Number(packages.find(p => p.id === payForm.package_id)?.price || 0).toLocaleString()}</strong> to:<br/>
+                      <div style={{ background: '#0f172a', padding: '8px 12px', borderRadius: 8, margin: '8px 0', display: 'inline-block', border: '1px solid #334155' }}>
+                        <span style={{ fontSize: 10, color: '#64748b', display: 'block', textTransform: 'uppercase', marginBottom: 2 }}>Number</span>
+                        <strong style={{ fontSize: 18, color: '#fff', letterSpacing: 1 }}>
+                          {payForm.method === 'JazzCash' ? '03266999069' : '03156998454'}
+                        </strong>
+                      </div><br/>
+                      3. Copy the <strong style={{ color: '#fff' }}>Transaction ID</strong> and paste it below.
+                    </div>
+                  </div>
+                )}
                 <div style={{ marginBottom: 16 }}>
                   <label className="label">Transaction Reference *</label>
                   <input className="input" value={payForm.transaction_ref} onChange={e => setPayForm({ ...payForm, transaction_ref: e.target.value })} placeholder="e.g. EP-2024-789456" required />
@@ -300,7 +393,9 @@ export default function ClientDashboard() {
             ))}
           </div>
         )}
-
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

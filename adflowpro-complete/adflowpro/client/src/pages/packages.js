@@ -4,6 +4,7 @@ import { publicAPI } from '../utils/api';
 import { useAuth } from '../features/auth/AuthContext';
 import { Spinner } from '../components/UI';
 import toast from 'react-hot-toast';
+import { motion } from 'framer-motion';
 
 const PKG_COLORS   = { Basic: '#6b7280', Standard: '#3b82f6', Premium: '#f5a623' };
 const PKG_FEATURES = {
@@ -41,63 +42,68 @@ export default function PackagesPage() {
         </div>
 
         {loading ? <Spinner /> : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24, maxWidth: 960, margin: '0 auto 48px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 32, maxWidth: 1100, margin: '0 auto 64px' }}>
             {packages.map((pkg, i) => {
               const color    = PKG_COLORS[pkg.name] || '#6b7280';
               const features = PKG_FEATURES[pkg.name] || [];
               return (
-                <div key={pkg.id} style={{
-                  background: '#1e293b',
-                  border: `2px solid ${i === 2 ? color + '66' : '#334155'}`,
-                  borderRadius: 18, padding: 32, position: 'relative',
-                  transform: i === 2 ? 'scale(1.02)' : 'none',
-                  boxShadow: i === 2 ? `0 0 40px ${color}22` : 'none',
-                }}>
+                <motion.div 
+                  key={pkg.id} 
+                  className="glass"
+                  initial={{ opacity: 0, y: 30, rotateY: -10 }}
+                  animate={{ opacity: 1, y: 0, rotateY: 0 }}
+                  whileHover={{ y: -10, scale: 1.02, rotateY: 5, boxShadow: `0 20px 40px ${color}15` }}
+                  transition={{ delay: i * 0.1, duration: 0.5 }}
+                  style={{
+                    border: `1px solid ${i === 2 ? color + '44' : 'rgba(255,255,255,0.05)'}`,
+                    borderRadius: 24, padding: 40, position: 'relative',
+                  }}
+                >
                   {i === 2 && (
-                    <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: color, color: '#1a1a2e', fontSize: 11, fontWeight: 800, padding: '4px 16px', borderRadius: 20, whiteSpace: 'nowrap' }}>
+                    <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: color, color: '#000', fontSize: 11, fontWeight: 900, padding: '6px 20px', borderRadius: 20, whiteSpace: 'nowrap', boxShadow: `0 10px 20px ${color}33` }}>
                       ★ MOST POPULAR
                     </div>
                   )}
 
-                  <div style={{ fontSize: 12, fontWeight: 700, color, letterSpacing: 2, marginBottom: 10 }}>{pkg.name.toUpperCase()}</div>
-                  <div style={{ fontSize: 38, fontWeight: 900, color: '#f1f5f9', marginBottom: 4 }}>
-                    PKR {Number(pkg.price).toLocaleString()}
+                  <div style={{ fontSize: 12, fontWeight: 800, color, letterSpacing: 3, marginBottom: 16 }}>{pkg.name.toUpperCase()}</div>
+                  <div style={{ fontSize: 44, fontWeight: 900, color: '#f1f5f9', marginBottom: 6, display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                    <span style={{ fontSize: 18, color: '#64748b', fontWeight: 500 }}>PKR</span>
+                    {Number(pkg.price).toLocaleString()}
                   </div>
-                  <div style={{ fontSize: 13, color: '#64748b', marginBottom: 24 }}>{pkg.description || `${pkg.duration_days}-day listing`}</div>
+                  <div style={{ fontSize: 14, color: '#64748b', marginBottom: 32 }}>{pkg.description || `${pkg.duration_days}-day listing`}</div>
 
-                  <div style={{ borderTop: '1px solid #334155', paddingTop: 20, marginBottom: 24 }}>
+                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 28, marginBottom: 32 }}>
                     {features.map(f => (
-                      <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 10, fontSize: 14 }}>
-                        <span style={{ color, fontSize: 16, lineHeight: 1.2 }}>✓</span>
+                      <div key={f} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 14, fontSize: 14 }}>
+                        <span style={{ color, fontSize: 18 }}>✓</span>
                         <span style={{ color: '#94a3b8' }}>{f}</span>
                       </div>
                     ))}
                   </div>
 
                   {/* Ranking weight visual */}
-                  <div style={{ background: '#0f172a', borderRadius: 8, padding: '10px 14px', marginBottom: 24 }}>
-                    <div style={{ fontSize: 11, color: '#64748b', marginBottom: 6 }}>RANK WEIGHT</div>
-                    <div style={{ display: 'flex', gap: 4 }}>
+                  <div style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 12, padding: '14px 18px', marginBottom: 32 }}>
+                    <div style={{ fontSize: 10, color: '#64748b', fontWeight: 700, letterSpacing: 1, marginBottom: 10, textTransform: 'uppercase' }}>Rank Visibility</div>
+                    <div style={{ display: 'flex', gap: 6 }}>
                       {[1,2,3].map(n => (
-                        <div key={n} style={{ flex: 1, height: 6, borderRadius: 3, background: n <= pkg.weight ? color : '#334155' }} />
+                        <div key={n} style={{ flex: 1, height: 8, borderRadius: 4, background: n <= pkg.weight ? color : '#334155', boxShadow: n <= pkg.weight ? `0 0 10px ${color}44` : 'none' }} />
                       ))}
                     </div>
                   </div>
 
                   <Link
-                    href={user ? '/client/dashboard' : '/register'}
+                    href={user ? `/client/dashboard?tab=payment&pkg=${pkg.id}` : `/register?pkg=${pkg.id}`}
                     style={{
                       display: 'block', textAlign: 'center',
-                      background: color, color: i === 2 ? '#1a1a2e' : '#fff',
-                      borderRadius: 10, padding: '12px 0', fontSize: 14, fontWeight: 700,
-                      textDecoration: 'none', transition: 'opacity 0.2s',
+                      background: color, color: '#000',
+                      borderRadius: 12, padding: '16px 0', fontSize: 15, fontWeight: 800,
+                      textDecoration: 'none', transition: 'all 0.3s ease',
+                      boxShadow: `0 10px 20px ${color}22`
                     }}
-                    onMouseEnter={e => e.target.style.opacity = '0.85'}
-                    onMouseLeave={e => e.target.style.opacity = '1'}
                   >
-                    {user ? 'Post an Ad →' : 'Get Started →'}
+                    {user ? 'Choose Plan →' : 'Sign Up Now →'}
                   </Link>
-                </div>
+                </motion.div>
               );
             })}
           </div>

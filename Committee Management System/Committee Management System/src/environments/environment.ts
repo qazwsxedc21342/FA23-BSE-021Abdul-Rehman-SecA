@@ -1,0 +1,6 @@
+export const environment = {
+  production: false,
+  supabaseUrl: 'https://mljottdisjqjokvpmoym.supabase.co',
+  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1sam90dGRpc2pxam9rdnBtb3ltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMTA4NzUsImV4cCI6MjA5Mzc4Njg3NX0.JDehrdjcMC87i8O4zVigO3Uem_lwYql06ExGBnt1qps',
+  stripePublishableKey: 'pk_test_51TUhM3GtF3xltgu7tXLFitgXE06zbKyD9r14wAnCUH1HkG3RjKuG3BpqDbbhXfqgm9qbXRekBFPJaBGYRz8ZimMk001zOexVjM',
+};

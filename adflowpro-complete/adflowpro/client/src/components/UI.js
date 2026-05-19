@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -64,17 +65,29 @@ export const AdCard = ({ ad }) => {
   const verified = ad.seller_profiles?.is_verified;
 
   return (
-    <Link href={`/ads/${ad.slug}`} style={{ textDecoration: 'none' }}>
-      <div style={{
-        background: '#1e293b',
-        border: `1px solid ${ad.is_featured ? '#f5a62344' : '#334155'}`,
-        borderRadius: 12, overflow: 'hidden', cursor: 'pointer',
-        transition: 'transform 0.15s, box-shadow 0.15s',
-        height: '100%',
+    <motion.div
+      whileHover={{ 
+        y: -5, 
+        rotateX: 6, 
+        rotateY: -4, 
+        scale: 1.02,
+        transition: { duration: 0.3, ease: 'easeOut' } 
       }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.3)'; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
-      >
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      style={{ perspective: 1000, height: '100%' }}
+    >
+      <Link href={`/ads/${ad.slug}`} style={{ textDecoration: 'none' }}>
+        <div className="glass" style={{
+          borderRadius: 12, overflow: 'hidden', cursor: 'pointer',
+          height: '100%', border: `1px solid ${ad.is_featured ? '#f5a62344' : 'rgba(255,255,255,0.05)'}`,
+          boxShadow: '0 10px 30px -10px rgba(0,0,0,0.3)',
+          transition: 'box-shadow 0.3s'
+        }}
+          onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 20px 40px -10px rgba(233,69,96,0.2)'; }}
+          onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 10px 30px -10px rgba(0,0,0,0.3)'; }}
+        >
         {/* Image */}
         <div style={{ position: 'relative', height: 160, background: '#0f172a', overflow: 'hidden' }}>
           {thumb ? (
@@ -103,16 +116,22 @@ export const AdCard = ({ ad }) => {
         </div>
       </div>
     </Link>
+    </motion.div>
   );
 };
 
-// ─── StatCard ─────────────────────────────────────────────────
 export const StatCard = ({ label, value, color = '#3b82f6', sub }) => (
-  <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 12, padding: '16px 20px', flex: 1, minWidth: 120 }}>
+  <motion.div 
+    whileHover={{ scale: 1.05, rotateY: 10 }}
+    initial={{ opacity: 0, scale: 0.9 }}
+    animate={{ opacity: 1, scale: 1 }}
+    className="glass"
+    style={{ borderRadius: 12, padding: '16px 20px', flex: 1, minWidth: 120, border: '1px solid rgba(255,255,255,0.05)' }}
+  >
     <div style={{ fontSize: 12, color: '#64748b', marginBottom: 6, fontWeight: 500 }}>{label}</div>
     <div style={{ fontSize: 28, fontWeight: 800, color, lineHeight: 1 }}>{value}</div>
     {sub && <div style={{ fontSize: 11, color: '#475569', marginTop: 4 }}>{sub}</div>}
-  </div>
+  </motion.div>
 );
 
 // ─── Spinner ──────────────────────────────────────────────────

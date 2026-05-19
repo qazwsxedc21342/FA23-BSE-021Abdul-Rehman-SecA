@@ -1,0 +1,11 @@
+{
+  "name": "committee-app",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/committee-app/browser",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

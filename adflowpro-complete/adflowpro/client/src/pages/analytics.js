@@ -1,6 +1,3 @@
-import { useState, useEffect }  from 'react';
-import { useRouter }            from 'next/router';
-import { analyticsAPI, publicAPI } from '../utils/api';
 import { StatCard, Spinner, PageHeader } from '../components/UI';
 import { useAuth }              from '../features/auth/AuthContext';
 import {
@@ -8,6 +5,7 @@ import {
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
 import toast from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const COLORS = ['#e94560','#3b82f6','#22c55e','#f59e0b','#8b5cf6','#06b6d4'];
 
@@ -55,62 +53,123 @@ export default function AnalyticsPage() {
   const tooltipStyle = { background: '#1e293b', border: '1px solid #334155', borderRadius: 8, color: '#e2e8f0', fontSize: 12 };
 
   return (
-    <div style={{ background: '#0f172a', minHeight: '100vh' }}>
+    <div style={{ background: '#0f172a', minHeight: '100vh', paddingBottom: 60, perspective: 1500 }}>
       <div className="section">
-        <PageHeader title="Analytics Dashboard" sub="Platform metrics, revenue, and system health" />
+        <PageHeader title="Intelligence Hub" sub="Live platform metrics and system health monitoring" />
 
         {/* ── Listing KPIs ──────────────────────────────────── */}
-        <h2 style={{ fontSize: 15, fontWeight: 600, color: '#64748b', marginBottom: 12, letterSpacing: 1 }}>LISTINGS</h2>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 32 }}>
-          <StatCard label="Total Ads"     value={listings.total}    color="#3b82f6" />
-          <StatCard label="Active"        value={listings.active}   color="#22c55e" />
-          <StatCard label="Pending"       value={listings.pending}  color="#f59e0b" />
-          <StatCard label="Expired"       value={listings.expired}  color="#6b7280" />
-          <StatCard label="Rejected"      value={listings.rejected} color="#ef4444" />
+        <motion.h2 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          style={{ fontSize: 13, fontWeight: 800, color: '#e94560', marginBottom: 16, letterSpacing: 2, textTransform: 'uppercase' }}
+        >
+          Marketplace Velocity
+        </motion.h2>
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 40 }}>
+          {[
+            { label: 'Total Ads',     value: listings.total,    color: '#3b82f6', delay: 0.1 },
+            { label: 'Active',        value: listings.active,   color: '#22c55e', delay: 0.2 },
+            { label: 'Pending',       value: listings.pending,  color: '#f59e0b', delay: 0.3 },
+            { label: 'Expired',       value: listings.expired,  color: '#64748b', delay: 0.4 },
+            { label: 'Rejected',      value: listings.rejected, color: '#ef4444', delay: 0.5 },
+          ].map(stat => (
+            <motion.div 
+              key={stat.label}
+              initial={{ opacity: 0, y: 20, rotateY: 20 }}
+              animate={{ opacity: 1, y: 0, rotateY: 0 }}
+              transition={{ delay: stat.delay, duration: 0.5 }}
+              style={{ flex: '1 1 180px' }}
+            >
+              <StatCard label={stat.label} value={stat.value} color={stat.color} />
+            </motion.div>
+          ))}
         </div>
 
         {/* ── Revenue KPIs ───────────────────────────────────── */}
-        <h2 style={{ fontSize: 15, fontWeight: 600, color: '#64748b', marginBottom: 12, letterSpacing: 1 }}>REVENUE</h2>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 24 }}>
-          <StatCard label="Total Revenue (PKR)" value={`${Math.round(revenue.total).toLocaleString()}`} color="#f5a623" />
-          <StatCard label="Pending Payments"    value={revenue.pending}                                 color="#f59e0b" />
+        <motion.h2 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5 }}
+          style={{ fontSize: 13, fontWeight: 800, color: '#e94560', marginBottom: 16, letterSpacing: 2, textTransform: 'uppercase' }}
+        >
+          Financial Intelligence
+        </motion.h2>
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 32 }}>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6 }}
+            style={{ flex: '1 1 300px' }}
+          >
+            <StatCard label="Platform Gross (PKR)" value={`${Math.round(revenue.total).toLocaleString()}`} color="#f5a623" />
+          </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.7 }}
+            style={{ flex: '1 1 300px' }}
+          >
+            <StatCard label="Outstanding Payments" value={revenue.pending} color="#f59e0b" />
+          </motion.div>
         </div>
 
         {/* ── Revenue Bar Chart ─────────────────────────────── */}
         {revenueChartData.length > 0 && (
-          <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 14, padding: 24, marginBottom: 28 }}>
-            <div style={{ fontSize: 15, fontWeight: 600, color: '#f1f5f9', marginBottom: 20 }}>Monthly Revenue (PKR)</div>
-            <ResponsiveContainer width="100%" height={220}>
+          <motion.div 
+            className="glass"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            style={{ borderRadius: 24, padding: 32, marginBottom: 40, border: '1px solid rgba(255,255,255,0.05)', boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}
+          >
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#f1f5f9', marginBottom: 24, letterSpacing: -0.5 }}>Revenue Stream Performance</div>
+            <ResponsiveContainer width="100%" height={260}>
               <BarChart data={revenueChartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
-                <Tooltip contentStyle={tooltipStyle} formatter={v => [`PKR ${v.toLocaleString()}`, 'Revenue']} />
-                <Bar dataKey="amount" fill="#e94560" radius={[6, 6, 0, 0]} />
+                <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 13, fontWeight: 500 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
+                <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={tooltipStyle} formatter={v => [`PKR ${v.toLocaleString()}`, 'Monthly Gross']} />
+                <Bar dataKey="amount" fill="url(#colorRev)" radius={[8, 8, 0, 0]} />
+                <defs>
+                  <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#e94560" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#e94560" stopOpacity={0.1}/>
+                  </linearGradient>
+                </defs>
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </motion.div>
         )}
 
         {/* ── Moderation ────────────────────────────────────── */}
-        <h2 style={{ fontSize: 15, fontWeight: 600, color: '#64748b', marginBottom: 12, letterSpacing: 1 }}>MODERATION</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 28 }}>
-          <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 14, padding: 22 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#f1f5f9', marginBottom: 18 }}>Approval vs Rejection</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 32 }}>
+          <motion.div 
+            className="glass"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.9 }}
+            style={{ borderRadius: 24, padding: 28, border: '1px solid rgba(255,255,255,0.05)' }}
+          >
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9', marginBottom: 20, textTransform: 'uppercase', letterSpacing: 1 }}>Moderation Efficiency</div>
             {[
-              { label: 'Approved',  value: moderation.approved,     rate: moderation.approvalRate,   color: '#22c55e' },
-              { label: 'Rejected',  value: moderation.rejected,     rate: moderation.rejectionRate,  color: '#ef4444' },
+              { label: 'Platform Approvals',  value: moderation.approved,     rate: moderation.approvalRate,   color: '#22c55e' },
+              { label: 'Violation Rejections',  value: moderation.rejected,     rate: moderation.rejectionRate,  color: '#ef4444' },
             ].map(item => (
-              <div key={item.label} style={{ marginBottom: 16 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 6 }}>
-                  <span style={{ color: '#94a3b8' }}>{item.label}</span>
-                  <span style={{ color: item.color, fontWeight: 600 }}>{item.value} ads · {item.rate}%</span>
+              <div key={item.label} style={{ marginBottom: 20 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}>
+                  <span style={{ color: '#94a3b8', fontWeight: 600 }}>{item.label}</span>
+                  <span style={{ color: item.color, fontWeight: 800 }}>{item.rate}%</span>
                 </div>
-                <div style={{ background: '#0f172a', borderRadius: 4, height: 8 }}>
-                  <div style={{ width: `${item.rate}%`, background: item.color, height: 8, borderRadius: 4, transition: 'width 0.5s' }} />
+                <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: 10, height: 10, overflow: 'hidden' }}>
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${item.rate}%` }}
+                    transition={{ delay: 1.2, duration: 1, ease: "easeOut" }}
+                    style={{ background: item.color, height: '100%', borderRadius: 10, boxShadow: `0 0 15px ${item.color}44` }} 
+                  />
                 </div>
               </div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Packages pie */}
           {packageData.length > 0 && (

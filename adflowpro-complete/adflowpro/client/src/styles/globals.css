@@ -10,6 +10,7 @@
   --color-dark: #0f172a;
   --color-navy: #1e293b;
   --color-slate: #334155;
+  --perspective: 1200px;
 }
 
 * {
@@ -108,3 +109,48 @@ input, textarea, select { font-family: inherit; }
   margin: 0 auto;
   padding: 32px 20px;
 }
+
+/* Premium Glass Style */
+.glass {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+.glass-active {
+  background: rgba(45, 55, 72, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ── 3D & Motion ────────────────────────────────────────── */
+.perspective-container {
+  perspective: var(--perspective);
+}
+
+.reveal-up {
+  transform: translateY(30px) rotateX(15deg);
+  opacity: 0;
+  transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal-up.active {
+  transform: translateY(0) rotateX(0);
+  opacity: 1;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(2deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float 6s ease-in-out infinite;
+}
+

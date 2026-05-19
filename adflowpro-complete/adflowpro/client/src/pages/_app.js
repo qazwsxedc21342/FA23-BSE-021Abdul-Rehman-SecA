@@ -29,9 +29,31 @@ export default function App({ Component, pageProps, router }) {
               animate="pageAnimate"
               exit="pageExit"
               variants={{
-                pageInitial: { opacity: 0, y: 15 },
-                pageAnimate: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-                pageExit: { opacity: 0, y: -15, transition: { duration: 0.2 } },
+                pageInitial: { 
+                  opacity: 0, 
+                  scale: 0.94, 
+                  rotateX: 10, 
+                  filter: 'blur(5px)',
+                  y: 20
+                },
+                pageAnimate: { 
+                  opacity: 1, 
+                  scale: 1, 
+                  rotateX: 0, 
+                  filter: 'blur(0px)',
+                  y: 0,
+                  transition: { 
+                    duration: 0.5, 
+                    ease: [0.22, 1, 0.36, 1] 
+                  } 
+                },
+                pageExit: { 
+                  opacity: 0, 
+                  scale: 1.05, 
+                  rotateX: -10, 
+                  filter: 'blur(10px)',
+                  transition: { duration: 0.3 } 
+                },
               }}
             >
               <Component {...pageProps} />
