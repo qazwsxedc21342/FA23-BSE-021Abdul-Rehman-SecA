@@ -3,53 +3,15 @@
 A complete healthcare management system for booking appointments, managing patients, doctors, and clinics.
 
 ## 📸 Screenshots
+<img width="1918" height="837" alt="p1" src="https://github.com/user-attachments/assets/b1aec5bc-1377-4e95-878b-3c226ef78f15" />
 
-<div align="center">
+<img width="1918" height="755" alt="p4" src="https://github.com/user-attachments/assets/b287e678-0a6a-43ce-be3f-8471fc2e748a" />
 
-<table>
-  <tr>
-    <td align="center" width="50%">
-      <img src="https://github.com/user-attachments/assets/e175971b-a076-4d6c-b2f1-14d66badd497" alt="Dashboard" width="100%" style="border-radius: 8px;"/>
-      <br/><sub><b>Dashboard</b></sub>
-    </td>
-    <td align="center" width="50%">
-      <img src="https://github.com/user-attachments/assets/b5847fac-f5a5-4975-be59-1d6b3562351b" alt="Screen 2" width="100%" style="border-radius: 8px;"/>
-      <br/><sub><b>Feature Overview</b></sub>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <img src="https://github.com/user-attachments/assets/89e0a024-e630-4780-ab22-23c09e4af041" alt="Screen 3" width="100%" style="border-radius: 8px;"/>
-      <br/><sub><b>User Management</b></sub>
-    </td>
-    <td align="center" width="50%">
-      <img src="https://github.com/user-attachments/assets/7487d945-1d8e-464f-8928-1834e44e9a2c" alt="Screen 4" width="100%" style="border-radius: 8px;"/>
-      <br/><sub><b>Analytics</b></sub>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <img src="https://github.com/user-attachments/assets/ab88b8b1-f1d5-4b43-be97-8827f2bccbfa" alt="Screen 5" width="100%" style="border-radius: 8px;"/>
-      <br/><sub><b>Settings</b></sub>
-    </td>
-    <td align="center" width="50%">
-      <img src="https://github.com/user-attachments/assets/e340d408-01d4-4f15-9d30-f3d60e850e0a" alt="Screen 6" width="100%" style="border-radius: 8px;"/>
-      <br/><sub><b>Reports</b></sub>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" colspan="2">
-      <img src="https://github.com/user-attachments/assets/400ce1f5-9249-494d-989a-07e03310bd32" alt="Screen 7" width="50%" style="border-radius: 8px;"/>
-      <br/><sub><b>Overview</b></sub>
-    </td>
-  </tr>
-</table>
-
-</div>
-
-
-
-
+<img width="1885" height="832" alt="p5" src="https://github.com/user-attachments/assets/93f4b591-9ae5-46ab-a271-d529292bc409" />
+<img width="1918" height="831" alt="p2" src="https://github.com/user-attachments/assets/1c335f6b-3ea8-4f36-89db-c8136ac5d599" />
+<img width="1891" height="833" alt="p3" src="https://github.com/user-attachments/assets/b8ddf6f6-b70b-4c25-a00a-259b524963c3" />
+<img width="1887" height="830" alt="p6" src="https://github.com/user-attachments/assets/d3e78c78-00c5-407b-a34c-d7463eda6982" />
+<img width="1916" height="833" alt="p7" src="https://github.com/user-attachments/assets/df14f890-531d-443a-804c-b8c1f1d06ff8" />
 
 
 
